@@ -20,8 +20,6 @@ var svg = d3.select("#scatter")
     .attr("width", svgWidth)
     .attr("height", svgHeight);
 
-
-
 // Append a group area, then set its margins 
 var chartGroup = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -78,51 +76,14 @@ function renderCircles(circleState, newXScale, newYScale, chosenXAxis, chosenYAx
 
 //function used for updating cicles group with new tooltip
 function updateToolTip(chosenXAxis, chosenYAxis, circleState) {
-    var labelX, labelY;
-    if (chosenXAxis === "poverty" && chosenYAxis === "obesity") {
-        labelX = "Poverty: ";
-        labelY = "Obesity: ";
-    }
-    if (chosenXAxis === "poverty" && chosenYAxis === "smokes") {
-        labelX = "Poverty: ";
-        labelY = "Smokes: ";
-    }
-    if (chosenXAxis === "poverty" && chosenYAxis === "healthcare") {
-        labelX = "Poverty: ";
-        labelY = "Healthcare: ";
-    }
-    if (chosenXAxis === 'age' && chosenYAxis === 'obesity') {
-        labelX = 'Age: ';
-        labelY = 'Obesity: ';
-    }
-    if (chosenXAxis === 'age' && chosenYAxis === 'smokes') {
-        labelX = 'Age: ';
-        labelY = 'Smokes: ';
-    }
-    if (chosenXAxis === 'age' && chosenYAxis === 'healthcare') {
-        labelX = 'Age: ';
-        labelY = 'Healthcare: ';
-    }
-    if (chosenXAxis === 'income' && chosenYAxis === 'obesity') {
-        labelX = "Income: ";
-        labelY = "Obesity: ";
-    }
-    if (chosenXAxis === 'income' && chosenYAxis === 'smokes') {
-        labelX = "Income: ";
-        labelY = "Smokes: ";
-    }
-    if (chosenXAxis === 'income' && chosenYAxis === 'healthcare') {
-        labelX = 'Income: ';
-        labelY = 'Healthcare: ';
-    }
-
+    
     var toolTip = d3.tip()
         .attr("class", "tooltip")
         // .style("border", "solid")
         .style("background-color", "gray")
         .offset([80, -60])
         .html(function (d) {
-            return (`${d.state}<br>${labelX}${d[chosenXAxis]}<br>${labelY}${d[chosenYAxis]}`);
+            return (`${d.state}<br>${chosenXAxis}: ${d[chosenXAxis]}<br>${chosenYAxis}: ${d[chosenYAxis]}`);
         });
 
     circleState.call(toolTip);
@@ -130,8 +91,7 @@ function updateToolTip(chosenXAxis, chosenYAxis, circleState) {
     circleState
         .on("mouseover", function (data) {
             toolTip.show(data, this);
-        })
-        //onmouseout event
+        })        
         .on("mouseout", function (data, index) {
             toolTip.hide(data, this);
         });
@@ -188,6 +148,7 @@ d3.csv("./data.csv").then(function (journalData, error) {
 
     var circleState = circlesGroup.enter()
         .append("g")
+        .attr("cursor", "pointer")
         .attr('transform', d => `translate(${xLinearScale(d[chosenXAxis])}, ${yLinearScale(d[chosenYAxis])})`);
     
     circleState        
@@ -196,7 +157,8 @@ d3.csv("./data.csv").then(function (journalData, error) {
         .attr("cy", 5)
         .attr("r", 15)
         .attr("fill", "lightblue")
-        .attr("opacity", ".6");
+        .attr('opacity', 0.5);
+        
     circleState
         .append("text")
         .attr("x", 5)
@@ -206,19 +168,6 @@ d3.csv("./data.csv").then(function (journalData, error) {
         .attr("font-size", 10)
         .text(d => d["abbr"]);
     
-
-    // var circleTextGroup = chartGroup.selectAll("circle-text")
-    //     .data(journalData)
-    //     .enter()
-    //     .append("text")        
-    //     .attr("x", d => xLinearScale(d[chosenXAxis]))
-    //     .attr("y", d => yLinearScale(d[chosenYAxis]))
-    //     .attr("text-anchor", "middle")
-    //     .attr("alignment-baseline", "central")
-    //     .attr("font-size", 10)
-    //     .text(d => d["abbr"]);
-
-    // Create group for 2 x-axis labels
     var labelsGroup = chartGroup.append("g")
         .attr("transform", `translate(${width / 2}, ${height + 20})`);
 
@@ -306,10 +255,7 @@ d3.csv("./data.csv").then(function (journalData, error) {
                 yAxis = renderAxesY(yLinearScale, yAxis);
 
                 // updates circles with new values
-                circleState = renderCircles(circleState, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);                
-                // updates circle-texts with new values
-                // circleTextGroup = renderCircleTexts(circleTextGroup, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);
-                
+                circleState = renderCircles(circleState, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);
                 //updates tooltips with new info
                 circleState = updateToolTip(chosenXAxis, chosenYAxis, circleState);
                 
